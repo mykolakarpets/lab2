@@ -139,6 +139,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="TRBFN.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dkm.hpp" />
+    <ClInclude Include="TRBFN.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
