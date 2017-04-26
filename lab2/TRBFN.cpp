@@ -88,16 +88,51 @@ void TRBFN::configure_beta(std::vector<std::array<double, 3>> & learnSet)
 
 void TRBFN::configure_W(std::vector<std::array<double, 3>>& learnSet)
 {
+	std::pair<std::vector<std::array<double, 2>>, std::vector<std::vector<double>>> transformedLearnSet = getLearnSet(learnSet);
+	std::vector<std::array<double, 2>> learnVectors = transformedLearnSet.first;
+	std::vector<std::vector<double>> learnOutputs = transformedLearnSet.second;
 
-	while (network_error( > DOWN_ERROR_VALUE)
+	double sum;
+	std::vector<double> actFuncRes;
+	std::vector<double> networkRes;
+	while (network_error(transformedLearnSet.first, transformedLearnSet.second) > DOWN_ERROR_VALUE)
 	{
+		for (size_t neuronNum = 0; neuronNum < neurons_count; neuronNum++)
+		{
+			for (size_t outNum = 0; outNum < categories_count; outNum++)
+			{
+				sum = 0;
+				for (size_t learnNum = 0; learnNum < learnVectors.size(); learnNum++)
+				{
+					actFuncRes = activation_function(learnVectors[learnNum]);
+					networkRes = output(learnVectors[learnNum]);
 
+					sum += actFuncRes[neuronNum] * (learnOutputs[learnNum][outNum] - networkRes[outNum]);
+				}
+				W[neuronNum][outNum] += sum * LEARNING_COEF;
+			}
+		}
 	}
 }
 
-std::pair<std::vector<std::array<double, 2>>, std::vector<std::vector<double>>> TRBFN::getLearnSet()
+std::pair<std::vector<std::array<double, 2>>, std::vector<std::vector<double>>> TRBFN::getLearnSet(std::vector<std::array<double, 3>>& learnSet)
 {
-	return std::pair<std::vector<std::array<double, 2>>, std::vector<std::vector<double>>>();
+	std::pair<std::vector<std::array<double, 2>>, std::vector<std::vector<double>>> resultPair;
+	std::vector<std::array<double, 2>> resultVectArr;
+	std::vector<std::vector<double>> resultVectVect;
+	std::vector<double> resultVect;
+	for each (std::array<double, 3> var in learnSet)
+	{
+		resultVectArr.push_back({ var[0],var[1] });
+		resultVect.clear();
+		for (size_t catNum = 0; catNum < categories_count; catNum++)
+		{
+			if (catNum == var[2]) resultVect.push_back(1);
+			else resultVect.push_back(0);
+		}
+		resultVectVect.push_back(resultVect);
+	}
+	return std::make_pair(resultVectArr, resultVectVect);
 }
 
 TRBFN::TRBFN()
@@ -119,19 +154,21 @@ learn(std::vector<std::array<double, 3>>& learnSet)
 	configure_W(learnSet);
 }
 
-std::vector<int> TRBFN::category(std::vector<std::array<double, 2>>& dataSet)
+std::vector<int> 
+TRBFN::category(std::vector<std::array<double, 2>>& dataSet)
 {
 	
 }
 
-template< class T>
-int TRBFN::category(std::array<double, 2>& vector)
+int 
+TRBFN::category(std::array<double, 2>& vector)
 {
 	std::vector<double> act_func = activation_function(vector);
 	
 }
 
-std::vector<double> TRBFN::output(std::array<double, 2>& testVect)
+std::vector<double> 
+TRBFN::output(std::array<double, 2>& testVect)
 {
 	std::vector<double> result;
 	std::vector<double> act_func = activation_function(testVect);
@@ -150,7 +187,8 @@ std::vector<double> TRBFN::output(std::array<double, 2>& testVect)
 	return result;
 }
 
-std::vector<std::vector<double>> TRBFN::output(std::vector<std::array<double, 2>>& testSet)
+std::vector<std::vector<double>> 
+TRBFN::output(std::vector<std::array<double, 2>>& testSet)
 {
 	std::vector<std::vector<double>> result;
 	for each (std::array<double, 2> vector in testSet)
@@ -160,7 +198,8 @@ std::vector<std::vector<double>> TRBFN::output(std::vector<std::array<double, 2>
 	return result;
 }
 
-std::vector<double> TRBFN::activation_function(std::array<double, 2> & vector)
+std::vector<double> 
+TRBFN::activation_function(std::array<double, 2> & vector)
 {
 	std::vector<double> result;
 	std::array<double, 2> difference;
@@ -172,28 +211,32 @@ std::vector<double> TRBFN::activation_function(std::array<double, 2> & vector)
 	return result;	
 }
 
-std::vector<std::array<double, 2>> TRBFN::line(std::pair<double, double>& x_range, std::pair<double, double>& y_range, double presicion)
+std::vector<std::array<double, 2>> 
+TRBFN::line(std::pair<double, double>& x_range, std::pair<double, double>& y_range, double presicion)
 {
 	return std::vector<std::array<double, 2>>();
 }
 
-
-std::array<double, 2> TRBFN::vects_diff(std::array<double, 2>& a, std::array<double, 2>& b)
+std::array<double, 2> 
+TRBFN::vects_diff(std::array<double, 2>& a, std::array<double, 2>& b)
 {
 	return {a[0] - b[0], a[1] - b[1]};
 }
 
-std::array<double, 2> TRBFN::vects_sum(std::array<double, 2>& a, std::array<double, 2>& b)
+std::array<double, 2> 
+TRBFN::vects_sum(std::array<double, 2>& a, std::array<double, 2>& b)
 {
 	return { a[0] + b[0], a[1] + b[1] };
 }
 
-double TRBFN::vects_mult(std::array<double, 2>& a, std::array<double, 2>& b)
+double 
+TRBFN::vects_mult(std::array<double, 2>& a, std::array<double, 2>& b)
 {
 	return (a[0] * b[0]) + (a[1] * b[1]);
 }
 
-double TRBFN::network_error(std::vector<std::array<double, 2>> & testSet, std::vector<std::vector<double>>& tempSet)
+double 
+TRBFN::network_error(std::vector<std::array<double, 2>> & testSet, std::vector<std::vector<double>>& tempSet)
 {
 	debugCheck();
 	double result = 0;
@@ -208,7 +251,8 @@ double TRBFN::network_error(std::vector<std::array<double, 2>> & testSet, std::v
 	return result;
 }
 
-void TRBFN::debugCheck()
+void 
+TRBFN::debugCheck()
 {
 #ifdef DEBUG
 	assert(neurons_count == mu.size());
