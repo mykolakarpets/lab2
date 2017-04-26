@@ -3,21 +3,8 @@
 #include <cassert>
 
 
-TRBFN::TRBFN()
+void TRBFN::configure_mu(std::vector<std::array<double, 3>> & learnSet)
 {
-
-}
-
-TRBFN::TRBFN(int neurons_count, int categories_count)
-{
-	this->neurons_count = neurons_count;
-	this->categories_count = categories_count;
-}
-
-void TRBFN::
-learn(std::vector<std::array<double, 3>>& learnSet)
-{	
-	//Converting data to get prototypes(mu)------------------------------------------------------------------------
 	std::vector<std::vector<std::array<double, 2>>> dividedByCategories;
 	for (size_t i = 0; i < categories_count; i++)
 	{
@@ -25,7 +12,7 @@ learn(std::vector<std::array<double, 3>>& learnSet)
 		dividedByCategories.push_back(newVector);
 	}
 
-	for each (std::array<double,3> var in learnSet)
+	for each (std::array<double, 3> var in learnSet)
 	{
 		int numOfCategory = var[2];
 		std::array<double, 2> coordinates;
@@ -57,12 +44,12 @@ learn(std::vector<std::array<double, 3>>& learnSet)
 			mu.push_back(var);
 		}
 	}
+}
 
-	//Counting betas------------------------------------------------------------------------------------------------
-
-	//First we need to clasterize learnSet
+void TRBFN::configure_beta(std::vector<std::array<double, 3>> & learnSet)
+{
 	std::vector<int> clasterizedLearnSet; // contains number of claster for each point from learnSet
-	double minDist , curDist;
+	double minDist, curDist;
 	int numberOfMinClaster;
 	for (size_t testNum = 0; testNum < learnSet.size(); testNum++)
 	{
@@ -97,11 +84,39 @@ learn(std::vector<std::array<double, 3>>& learnSet)
 		}
 		beta.push_back(1 / (2 * pow(sum / m, 2.)));
 	}
+}
 
-	//Counting W matrix
+void TRBFN::configure_W(std::vector<std::array<double, 3>>& learnSet)
+{
 
+	while (network_error( > DOWN_ERROR_VALUE)
+	{
 
+	}
+}
 
+std::pair<std::vector<std::array<double, 2>>, std::vector<std::vector<double>>> TRBFN::getLearnSet()
+{
+	return std::pair<std::vector<std::array<double, 2>>, std::vector<std::vector<double>>>();
+}
+
+TRBFN::TRBFN()
+{
+
+}
+
+TRBFN::TRBFN(int neurons_count, int categories_count)
+{
+	this->neurons_count = neurons_count;
+	this->categories_count = categories_count;
+}
+
+void TRBFN::
+learn(std::vector<std::array<double, 3>>& learnSet)
+{	
+	configure_mu(learnSet);
+	configure_beta(learnSet);
+	configure_W(learnSet);
 }
 
 std::vector<int> TRBFN::category(std::vector<std::array<double, 2>>& dataSet)
@@ -176,6 +191,21 @@ std::array<double, 2> TRBFN::vects_sum(std::array<double, 2>& a, std::array<doub
 double TRBFN::vects_mult(std::array<double, 2>& a, std::array<double, 2>& b)
 {
 	return (a[0] * b[0]) + (a[1] * b[1]);
+}
+
+double TRBFN::network_error(std::vector<std::array<double, 2>> & testSet, std::vector<std::vector<double>>& tempSet)
+{
+	debugCheck();
+	double result = 0;
+	std::vector<std::vector<double>> network_output = output(testSet);
+	for (size_t nTest = 0; nTest < testSet.size(); nTest++)
+	{
+		for (size_t nOut = 0; nOut < categories_count; nOut++)
+		{
+			result += pow(tempSet[nTest][nOut] - network_output[nTest][nOut], 2.);
+		}
+	}
+	return result;
 }
 
 void TRBFN::debugCheck()

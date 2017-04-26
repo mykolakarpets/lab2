@@ -5,6 +5,7 @@
 #include "dkm.hpp"
 
 #define DEBUG
+#define DOWN_ERROR_VALUE 0.01
 
 class TRBFN
 {
@@ -15,6 +16,11 @@ class TRBFN
 	std::vector<std::array<double, 2>> mu;
 	std::vector<double> beta;
 	std::vector<std::vector<double>> W;
+
+	void configure_mu(std::vector<std::array<double, 3>> & learnSet);
+	void configure_beta(std::vector<std::array<double, 3>> & learnSet);
+	void configure_W(std::vector<std::array<double, 3>> & learnSet);
+	std::pair<std::vector<std::array<double,2>>,std::vector<std::vector<double>>> getLearnSet();
 public:
 	TRBFN();
 	TRBFN(int neurons_count, int categories_count);
@@ -40,6 +46,8 @@ public:
 	static std::array<double, 2> vects_diff(std::array<double, 2> & a, std::array<double, 2> & b);
 	static std::array<double, 2> vects_sum(std::array<double, 2> & a, std::array<double, 2> & b);
 	static double vects_mult(std::array<double, 2> & a, std::array<double, 2> & b);
+
+	double network_error(std::vector<std::array<double, 2>> & testSet, std::vector<std::vector<double>>& tempSet);
 
 	void debugCheck();
 
