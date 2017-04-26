@@ -28,15 +28,18 @@ public:
 	std::vector<std::vector<double>> output(std::vector<std::array<double, 2>> & testSet);
 
 	std::vector<double> activation_function(std::array<double, 2> & vector);
+
 	std::vector<std::array<double, 2>> line(std::pair<double,double> & x_range,
-		std::pair<double, double> & y_range, double presicion);
+		std::pair<double, double> & y_range, double presicion); // In work
 
 	static double euclidean_distance(std::array<double, 2> vector)
 	{
 		return sqrt(pow(vector[0], 2.) + pow(vector[1], 2.));
 	}
 
-	static double fault(std::array<double, 2> & temp, std::array<double, 2> & vector);
+	static std::array<double, 2> vects_diff(std::array<double, 2> & a, std::array<double, 2> & b);
+	static std::array<double, 2> vects_sum(std::array<double, 2> & a, std::array<double, 2> & b);
+	static double vects_mult(std::array<double, 2> & a, std::array<double, 2> & b);
 
 	void debugCheck();
 

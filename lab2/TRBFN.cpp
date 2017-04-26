@@ -163,9 +163,19 @@ std::vector<std::array<double, 2>> TRBFN::line(std::pair<double, double>& x_rang
 }
 
 
-double TRBFN::fault(std::array<double, 2>& temp, std::array<double, 2>& vector)
+std::array<double, 2> TRBFN::vects_diff(std::array<double, 2>& a, std::array<double, 2>& b)
 {
-	double result = 0;
+	return {a[0] - b[0], a[1] - b[1]};
+}
+
+std::array<double, 2> TRBFN::vects_sum(std::array<double, 2>& a, std::array<double, 2>& b)
+{
+	return { a[0] + b[0], a[1] + b[1] };
+}
+
+double TRBFN::vects_mult(std::array<double, 2>& a, std::array<double, 2>& b)
+{
+	return (a[0] * b[0]) + (a[1] * b[1]);
 }
 
 void TRBFN::debugCheck()
