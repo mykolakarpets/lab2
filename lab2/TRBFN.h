@@ -2,6 +2,9 @@
 #include <vector>
 #include <array>
 #include <tuple>
+#include <type_traits>
+#include <cassert>
+#include <random>
 #include "dkm.hpp"
 
 #define DEBUG
@@ -20,9 +23,7 @@ class TRBFN
 
 
 
-	void configure_mu(std::vector<std::array<double, 3>> & learnSet);
-
-	void configure_beta(std::vector<std::array<double, 3>> & learnSet);
+	void configure_mu_beta(std::vector<std::array<double, 3>> & learnSet);
 
 	void configure_W(std::vector<std::array<double, 3>> & learnSet);
 
@@ -36,6 +37,18 @@ public:
 
 	void 
 		learn(std::vector<std::array<double,3>> & learnSet);
+	/*
+		Structure of the learnSet: 
+
+	    | x1 | x2 | category |
+		----------------------
+		|....|....|..........|
+		|....|....|..........|
+		|....|....|..........|
+		|....|....|..........|
+		|....|....|..........|
+
+	*/
 	
 	std::vector<int> 
 		category(std::vector<std::array<double, 2>> & dataSet);//In work
