@@ -130,8 +130,19 @@ std::vector<double> TRBFN::output(std::array<double, 2>& testVect)
 		}
 
 		sum += 1; //bias(зміщення)
-
+		result.push_back(sum);
 	}
+	return result;
+}
+
+std::vector<std::vector<double>> TRBFN::output(std::vector<std::array<double, 2>>& testSet)
+{
+	std::vector<std::vector<double>> result;
+	for each (std::array<double, 2> vector in testSet)
+	{
+		result.push_back(output(vector));
+	}
+	return result;
 }
 
 std::vector<double> TRBFN::activation_function(std::array<double, 2> & vector)
@@ -154,7 +165,7 @@ std::vector<std::array<double, 2>> TRBFN::line(std::pair<double, double>& x_rang
 
 double TRBFN::fault(std::array<double, 2>& temp, std::array<double, 2>& vector)
 {
-	return 0.0;
+	double result = 0;
 }
 
 void TRBFN::debugCheck()
