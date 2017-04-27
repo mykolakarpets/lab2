@@ -42,10 +42,10 @@ TRBFN::configure_W(std::vector<std::array<double, 3>>& learnSet)
 	std::pair<std::vector<std::array<double, 2>>, std::vector<std::vector<double>>> transformedLearnSet = getLearnSet(learnSet);
 	std::vector<std::array<double, 2>> learnVectors = transformedLearnSet.first;
 	std::vector<std::vector<double>> learnOutputs = transformedLearnSet.second;
-	//vectorOut(learnOutputs, "LearnOuputs");
+
 	double sum;
 	std::vector<double> actFuncRes;
-	int networkRes;
+	std::vector<double> networkRes;
 	while (network_error(transformedLearnSet.first, transformedLearnSet.second) > DOWN_ERROR_VALUE)
 	{
 		for (int neuronNum = 0; neuronNum < neurons_count; neuronNum++)
@@ -55,18 +55,14 @@ TRBFN::configure_W(std::vector<std::array<double, 3>>& learnSet)
 				sum = 0;
 				for (int learnNum = 0; learnNum < (int)learnVectors.size(); learnNum++)
 				{
-
 					actFuncRes = activation_function(learnVectors[learnNum]);
-					networkRes = category(learnVectors[learnNum])==outNum ? 1 : 0;
-					//std::cout << "sum += "<<actFuncRes[neuronNum]<<" * ("<<learnOutputs[learnNum][outNum]<<" - "<<networkRes<<")"<<std::endl;
-					sum += actFuncRes[neuronNum] * (learnOutputs[learnNum][outNum] - networkRes);
+					networkRes = output(learnVectors[learnNum]);
+
+					sum += actFuncRes[neuronNum] * (learnOutputs[learnNum][outNum] - networkRes[outNum]);
 				}
-				W[neuronNum][outNum] -= sum * LEARNING_COEF;
-				//std::cout << "Delta: " << sum * LEARNING_COEF << std::endl;
+				W[neuronNum][outNum] += sum * LEARNING_COEF;
 			}
 		}
-		//std::cout << "Network_error " << network_error(transformedLearnSet.first, transformedLearnSet.second)<< std::endl;
-		debugCheck();
 	}
 }
 
@@ -83,7 +79,7 @@ TRBFN::getLearnSet(std::vector<std::array<double, 3>>& learnSet)
 		resultVect.clear();
 		for (int catNum = 0; catNum < categories_count; catNum++)
 		{
-			if (catNum == (var[2]-1)) resultVect.push_back(1);
+			if (catNum == var[2]) resultVect.push_back(1);
 			else resultVect.push_back(0);
 		}
 		resultVectVect.push_back(resultVect);
@@ -172,7 +168,6 @@ TRBFN::output(std::array<double, 2>& testVect)
 		sum += 1; //bias(зміщення)
 		result.push_back(sum);
 	}
-
 	return result;
 }
 
@@ -227,18 +222,16 @@ TRBFN::vects_mult(std::array<double, 2>& a, std::array<double, 2>& b)
 double 
 TRBFN::network_error(std::vector<std::array<double, 2>> & testSet, std::vector<std::vector<double>>& tempSet)
 {
+	debugCheck();
 	double result = 0;
 	std::vector<std::vector<double>> network_output = output(testSet);
 	for (int nTest = 0; nTest < (int)testSet.size(); nTest++)
 	{
 		for (int nOut = 0; nOut < categories_count; nOut++)
 		{
-			result += pow(tempSet[nTest][nOut] - ((category(testSet[nTest]) == nOut) ? 1 : 0), 2.);
+			result += pow(tempSet[nTest][nOut] - network_output[nTest][nOut], 2.);
 		}
 	}
-#ifdef DEBUG
-	//std::cout << "Error:\t" << result << std::endl;
-#endif
 	return result;
 }
 
@@ -246,67 +239,13 @@ void
 TRBFN::debugCheck()
 {
 #ifdef DEBUG
-	std::cout << "W matrix: \n";
-	for each (auto row in W)
+	assert(neurons_count == mu.size());
+	assert(neurons_count == beta.size());
+	assert(W.size() == neurons_count);
+	for each (std::vector<double> var in W)
 	{
-		for each (auto elem in row)
-		{
-			std::cout << std::setw(3)<< elem << " ";
-		}
-		std::cout << std::endl;
+		assert(var.size() == categories_count);
 	}
-	//system("PAUSE");
-#endif
-}
-
-void TRBFN::vectorOut(std::vector<double> & param, std::string caption)
-{
-#ifdef DEBUG
-	std::cout << caption.data() << std::endl;
-	for each (auto var in param)
-	{
-		std::cout << var << std::endl;
-	}
-	system("PAUSE");
-
-#endif
-}
-
-void
-TRBFN::vectorOut(std::vector<std::vector<double>> & param, std::string caption)
-{
-#ifdef DEBUG
-	std::cout << caption.data() << std::endl;
-	for each (auto var in param)
-	{
-		for each (auto num in var)
-		{
-			std::cout << num;
-		}
-		std::cout << std::endl;
-	}
-	
-	//system("PAUSE");
-#endif
-
-
-}
-
-void
-TRBFN::vectorOut(std::vector<std::array<double, 2>> & param, std::string caption)
-{
-#ifdef DEBUG
-	std::cout << caption.data() << std::endl;
-	for each (auto var in param)
-	{
-		for each (auto num in var)
-		{
-			std::cout << num;
-		}
-		std::cout << std::endl;
-	}
-
-	//system("PAUSE");
 #endif
 }
 
