@@ -63,6 +63,7 @@ TRBFN::configure_W(std::vector<std::array<double, 3>>& learnSet)
 				W[neuronNum][outNum] += sum * LEARNING_COEF;
 			}
 		}
+		out_w_matrix();
 	}
 }
 
@@ -222,7 +223,6 @@ TRBFN::vects_mult(std::array<double, 2>& a, std::array<double, 2>& b)
 double 
 TRBFN::network_error(std::vector<std::array<double, 2>> & testSet, std::vector<std::vector<double>>& tempSet)
 {
-	debugCheck();
 	double result = 0;
 	std::vector<std::vector<double>> network_output = output(testSet);
 	for (int nTest = 0; nTest < (int)testSet.size(); nTest++)
@@ -236,17 +236,25 @@ TRBFN::network_error(std::vector<std::array<double, 2>> & testSet, std::vector<s
 }
 
 void 
-TRBFN::debugCheck()
+TRBFN::out_w_matrix()
 {
-#ifdef DEBUG
-	assert(neurons_count == mu.size());
-	assert(neurons_count == beta.size());
-	assert(W.size() == neurons_count);
-	for each (std::vector<double> var in W)
+#ifdef OUT_W_MATRIX
+	using namespace std;
+
+	cout << "W matrix: " << endl;
+	for each (auto row in W)
 	{
-		assert(var.size() == categories_count);
+		for each (auto elem in row)
+		{
+			cout << setw(10) << elem;
+		}
+		cout << endl;
 	}
+	
+
+
 #endif
+
 }
 
 TRBFN::~TRBFN()

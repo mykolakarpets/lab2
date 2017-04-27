@@ -5,11 +5,20 @@
 #include <type_traits>
 #include <cassert>
 #include <random>
+#include <iostream>
+#include <iomanip>
 #include "dkm.hpp"
 
-#define DEBUG
+//Degugging flags
+#define OUT_W_MATRIX
+
+
+
+
+
+
 #define DOWN_ERROR_VALUE 0.01
-#define LEARNING_COEF 0.1
+#define LEARNING_COEF 0.001
 
 class TRBFN
 {
@@ -87,7 +96,7 @@ public:
 		network_error(std::vector<std::array<double, 2>> & testSet, std::vector<std::vector<double>>& tempSet);
 
 	void 
-		debugCheck();
+		out_w_matrix();
 
 	~TRBFN();
 };
