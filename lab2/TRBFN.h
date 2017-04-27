@@ -71,6 +71,12 @@ public:
 	std::vector<std::vector<double>> 
 		output(std::vector<std::array<double, 2>> & testSet);
 
+	std::vector<double>
+		normalized_output(std::array<double, 2> & testVect);
+
+	std::vector<std::vector<double>>
+		normalized_output(std::vector<std::array<double, 2>> & testSet);
+
 	std::vector<double> 
 		activation_function(std::array<double, 2> & vector);
 

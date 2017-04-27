@@ -169,6 +169,7 @@ TRBFN::output(std::array<double, 2>& testVect)
 		sum += 1; //bias(зміщення)
 		result.push_back(sum);
 	}
+
 	return result;
 }
 
@@ -179,6 +180,27 @@ TRBFN::output(std::vector<std::array<double, 2>>& testSet)
 	for each (std::array<double, 2> vector in testSet)
 	{
 		result.push_back(output(vector));
+	}
+	return result;
+}
+
+std::vector<double> TRBFN::normalized_output(std::array<double, 2>& testVect)
+{
+	int out = category(testVect);
+	std::vector<double> result;
+	for (int i = 0; i < categories_count; i++)
+	{
+		result.push_back(i == out ? 1.0 : 0.0);
+	}
+	return result;
+}
+
+std::vector<std::vector<double>> TRBFN::normalized_output(std::vector<std::array<double, 2>>& testSet)
+{
+	std::vector<std::vector<double>> result;
+	for each (std::array<double, 2> vector in testSet)
+	{
+		result.push_back(normalized_output(vector));
 	}
 	return result;
 }
@@ -250,8 +272,6 @@ TRBFN::out_w_matrix()
 		}
 		cout << endl;
 	}
-	
-
 
 #endif
 
