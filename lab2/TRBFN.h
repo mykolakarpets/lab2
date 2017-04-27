@@ -7,10 +7,11 @@
 #include <iostream>
 #include <random>
 #include "dkm.hpp"
+#include <iomanip>
 
 #define DEBUG
 #define DOWN_ERROR_VALUE 0.1
-#define LEARNING_COEF 0.1
+#define LEARNING_COEF 0.0001
 
 class TRBFN
 {
@@ -93,7 +94,13 @@ public:
 		debugCheck();
 
 	void
-		checkNetworkOutput(std::vector<double> &);
+		vectorOut(std::vector<double> & param, std::string caption);
+
+	void
+		vectorOut(std::vector<std::vector<double>> & param, std::string caption);
+
+	void
+		vectorOut(std::vector<std::array<double,2>> & param, std::string caption);
 
 	~TRBFN();
 };

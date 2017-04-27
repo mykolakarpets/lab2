@@ -42,10 +42,10 @@ TRBFN::configure_W(std::vector<std::array<double, 3>>& learnSet)
 	std::pair<std::vector<std::array<double, 2>>, std::vector<std::vector<double>>> transformedLearnSet = getLearnSet(learnSet);
 	std::vector<std::array<double, 2>> learnVectors = transformedLearnSet.first;
 	std::vector<std::vector<double>> learnOutputs = transformedLearnSet.second;
-
+	//vectorOut(learnOutputs, "LearnOuputs");
 	double sum;
 	std::vector<double> actFuncRes;
-	std::vector<double> networkRes;
+	int networkRes;
 	while (network_error(transformedLearnSet.first, transformedLearnSet.second) > DOWN_ERROR_VALUE)
 	{
 		for (int neuronNum = 0; neuronNum < neurons_count; neuronNum++)
@@ -55,15 +55,17 @@ TRBFN::configure_W(std::vector<std::array<double, 3>>& learnSet)
 				sum = 0;
 				for (int learnNum = 0; learnNum < (int)learnVectors.size(); learnNum++)
 				{
+
 					actFuncRes = activation_function(learnVectors[learnNum]);
-					networkRes = output(learnVectors[learnNum]);
-					checkNetworkOutput(networkRes);
-					checkNetworkOutput(actFuncRes);
-					sum += actFuncRes[neuronNum] * (learnOutputs[learnNum][outNum] - networkRes[outNum]);
+					networkRes = category(learnVectors[learnNum])==outNum ? 1 : 0;
+					//std::cout << "sum += "<<actFuncRes[neuronNum]<<" * ("<<learnOutputs[learnNum][outNum]<<" - "<<networkRes<<")"<<std::endl;
+					sum += actFuncRes[neuronNum] * (learnOutputs[learnNum][outNum] - networkRes);
 				}
-				W[neuronNum][outNum] += sum * LEARNING_COEF;
+				W[neuronNum][outNum] -= sum * LEARNING_COEF;
+				//std::cout << "Delta: " << sum * LEARNING_COEF << std::endl;
 			}
 		}
+		//std::cout << "Network_error " << network_error(transformedLearnSet.first, transformedLearnSet.second)<< std::endl;
 		debugCheck();
 	}
 }
@@ -170,6 +172,7 @@ TRBFN::output(std::array<double, 2>& testVect)
 		sum += 1; //bias(зміщення)
 		result.push_back(sum);
 	}
+
 	return result;
 }
 
@@ -224,18 +227,17 @@ TRBFN::vects_mult(std::array<double, 2>& a, std::array<double, 2>& b)
 double 
 TRBFN::network_error(std::vector<std::array<double, 2>> & testSet, std::vector<std::vector<double>>& tempSet)
 {
-	debugCheck();
 	double result = 0;
 	std::vector<std::vector<double>> network_output = output(testSet);
 	for (int nTest = 0; nTest < (int)testSet.size(); nTest++)
 	{
 		for (int nOut = 0; nOut < categories_count; nOut++)
 		{
-			result += pow(tempSet[nTest][nOut] - network_output[nTest][nOut], 2.);
+			result += pow(tempSet[nTest][nOut] - ((category(testSet[nTest]) == nOut) ? 1 : 0), 2.);
 		}
 	}
 #ifdef DEBUG
-	std::cout << "Error:\t" << result << std::endl;
+	//std::cout << "Error:\t" << result << std::endl;
 #endif
 	return result;
 }
@@ -249,24 +251,62 @@ TRBFN::debugCheck()
 	{
 		for each (auto elem in row)
 		{
-			std::cout << elem << "\t";
+			std::cout << std::setw(3)<< elem << " ";
 		}
 		std::cout << std::endl;
 	}
-	system("PAUSE");
+	//system("PAUSE");
 #endif
 }
 
-void TRBFN::checkNetworkOutput(std::vector<double> & param)
+void TRBFN::vectorOut(std::vector<double> & param, std::string caption)
 {
 #ifdef DEBUG
-	std::cout << "Network output: " << std::endl;
+	std::cout << caption.data() << std::endl;
 	for each (auto var in param)
 	{
 		std::cout << var << std::endl;
 	}
 	system("PAUSE");
 
+#endif
+}
+
+void
+TRBFN::vectorOut(std::vector<std::vector<double>> & param, std::string caption)
+{
+#ifdef DEBUG
+	std::cout << caption.data() << std::endl;
+	for each (auto var in param)
+	{
+		for each (auto num in var)
+		{
+			std::cout << num;
+		}
+		std::cout << std::endl;
+	}
+	
+	//system("PAUSE");
+#endif
+
+
+}
+
+void
+TRBFN::vectorOut(std::vector<std::array<double, 2>> & param, std::string caption)
+{
+#ifdef DEBUG
+	std::cout << caption.data() << std::endl;
+	for each (auto var in param)
+	{
+		for each (auto num in var)
+		{
+			std::cout << num;
+		}
+		std::cout << std::endl;
+	}
+
+	//system("PAUSE");
 #endif
 }
 
