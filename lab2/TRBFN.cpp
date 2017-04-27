@@ -57,12 +57,14 @@ TRBFN::configure_W(std::vector<std::array<double, 3>>& learnSet)
 				{
 					actFuncRes = activation_function(learnVectors[learnNum]);
 					networkRes = output(learnVectors[learnNum]);
-
+					checkNetworkOutput(networkRes);
+					checkNetworkOutput(actFuncRes);
 					sum += actFuncRes[neuronNum] * (learnOutputs[learnNum][outNum] - networkRes[outNum]);
 				}
 				W[neuronNum][outNum] += sum * LEARNING_COEF;
 			}
 		}
+		debugCheck();
 	}
 }
 
@@ -79,7 +81,7 @@ TRBFN::getLearnSet(std::vector<std::array<double, 3>>& learnSet)
 		resultVect.clear();
 		for (int catNum = 0; catNum < categories_count; catNum++)
 		{
-			if (catNum == var[2]) resultVect.push_back(1);
+			if (catNum == (var[2]-1)) resultVect.push_back(1);
 			else resultVect.push_back(0);
 		}
 		resultVectVect.push_back(resultVect);
@@ -232,6 +234,9 @@ TRBFN::network_error(std::vector<std::array<double, 2>> & testSet, std::vector<s
 			result += pow(tempSet[nTest][nOut] - network_output[nTest][nOut], 2.);
 		}
 	}
+#ifdef DEBUG
+	std::cout << "Error:\t" << result << std::endl;
+#endif
 	return result;
 }
 
@@ -239,13 +244,29 @@ void
 TRBFN::debugCheck()
 {
 #ifdef DEBUG
-	assert(neurons_count == mu.size());
-	assert(neurons_count == beta.size());
-	assert(W.size() == neurons_count);
-	for each (std::vector<double> var in W)
+	std::cout << "W matrix: \n";
+	for each (auto row in W)
 	{
-		assert(var.size() == categories_count);
+		for each (auto elem in row)
+		{
+			std::cout << elem << "\t";
+		}
+		std::cout << std::endl;
 	}
+	system("PAUSE");
+#endif
+}
+
+void TRBFN::checkNetworkOutput(std::vector<double> & param)
+{
+#ifdef DEBUG
+	std::cout << "Network output: " << std::endl;
+	for each (auto var in param)
+	{
+		std::cout << var << std::endl;
+	}
+	system("PAUSE");
+
 #endif
 }
 

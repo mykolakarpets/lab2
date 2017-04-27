@@ -139,10 +139,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="csv_istream_iterator.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="TRBFN.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="csv_istream_iterator.h" />
     <ClInclude Include="dkm.hpp" />
     <ClInclude Include="TRBFN.h" />
   </ItemGroup>

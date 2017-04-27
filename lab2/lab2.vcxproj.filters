@@ -21,12 +21,18 @@
     <ClCompile Include="TRBFN.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="csv_istream_iterator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TRBFN.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dkm.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="csv_istream_iterator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

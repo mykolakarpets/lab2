@@ -4,11 +4,12 @@
 #include <tuple>
 #include <type_traits>
 #include <cassert>
+#include <iostream>
 #include <random>
 #include "dkm.hpp"
 
 #define DEBUG
-#define DOWN_ERROR_VALUE 0.01
+#define DOWN_ERROR_VALUE 0.1
 #define LEARNING_COEF 0.1
 
 class TRBFN
@@ -20,8 +21,6 @@ class TRBFN
 	std::vector<std::array<double, 2>> mu;
 	std::vector<double> beta;
 	std::vector<std::vector<double>> W;
-
-
 
 	void configure_mu_beta(std::vector<std::array<double, 3>> & learnSet);
 
@@ -40,13 +39,17 @@ public:
 	/*
 		Structure of the learnSet: 
 
-	    | x1 | x2 | category |
+		| x1 | x2 | category |
 		----------------------
 		|....|....|..........|
 		|....|....|..........|
 		|....|....|..........|
 		|....|....|..........|
 		|....|....|..........|
+
+		x1 - first coodnitate
+		x2 - second coordinate
+		category - number of category (from 1)
 
 	*/
 	
@@ -88,6 +91,9 @@ public:
 
 	void 
 		debugCheck();
+
+	void
+		checkNetworkOutput(std::vector<double> &);
 
 	~TRBFN();
 };
