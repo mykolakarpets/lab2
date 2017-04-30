@@ -21,12 +21,29 @@ int main(int argc, char ** argv)
 		std::getline(fin, y, ',');
 		std::getline(fin, category);
 
-		learnSet.push_back({ std::stod(x),std::stod(y), std::stod(category) });
+		learnSet.push_back({ std::stod(x),std::stod(y), (std::stod(category) - 1) });
 	}
 
 	TRBFN network(20, 2);
 	network.learn(learnSet);
 
+	std::ofstream out("means.txt");
+	for each (auto var in network.getMu())
+	{
+		out << var[0] << "," << var[1] << std::endl;
+	}
+
+	std::ofstream outW("weights.txt");
+	auto configured_network = network.getW();
+	for each (auto var in configured_network)
+	{
+		for (int i = 0; i < var.size(); i++)
+		{
+			outW << var[i];
+			if (i != var.size() - 1) outW << ",";
+		}
+		outW << std::endl;
+	}
 
 
 	return 0;
