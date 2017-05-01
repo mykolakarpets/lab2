@@ -8,13 +8,18 @@
 #include <iostream>
 #include <iomanip>
 #include "dkm.hpp"
+#include <thread>
 
 //Degugging flags
 #define OUT_W_MATRIX
 #define OUT_ERROR
+#define STR(x) #x
+#define PRINT(F) \
+	std::cout <<STR(F)<<F<<std::endl;
 
 #define DOWN_ERROR_VALUE 0.01
-#define LEARNING_COEF 0.001
+#define LEARNING_COEF -0.5
+#define MAX_ITERATIONS 200
 
 class TRBFN
 {
@@ -24,6 +29,7 @@ class TRBFN
 	//std::vector<std::pair<std::array<double,2>,int>> mu;
 	std::vector<std::array<double, 2>> mu;
 	std::vector<double> beta;
+
 	std::vector<std::vector<double>> W;
 	std::vector<double> bias;
 
@@ -36,13 +42,15 @@ public:
 
 	void configure_mu_beta(std::vector<std::array<double, 3>> & learnSet);
 
-	void configure_W(std::vector<std::array<double, 3>> & learnSet);
+	void configure_W(std::vector<std::array<double, 3>> & learnSet, int outNum);
 
 	std::vector<double> unnorm_out(std::vector<double> & netOut);
 
 	std::vector<std::array<double, 2>> getMu();
 
 	std::vector<std::vector<double>> getW();
+
+	std::vector<double> getBeta();
 
 	std::pair<std::vector<std::array<double, 2>>, std::vector<std::vector<double>>>
 		getLearnSet(std::vector<std::array<double, 3>>& learnSet);
@@ -102,13 +110,13 @@ public:
 		vects_mult(std::array<double, 2> & a, std::array<double, 2> & b);
 
 	double 
-		network_error(std::vector<std::array<double, 2>> & testSet, std::vector<std::vector<double>>& tempSet);
+		network_error(std::vector<std::array<double, 2>> & testSet, std::vector<std::vector<double>>& tempSet, int category);
 
 	void 
 		out_w_matrix();
 
 	void
-		out_error(std::vector<std::array<double, 2>> & testSet, std::vector<std::vector<double>>& tempSet);
+		out_error(std::vector<std::array<double, 2>> & testSet, std::vector<std::vector<double>>& tempSet, int category);
 
 	~TRBFN();
 };

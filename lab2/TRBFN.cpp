@@ -3,41 +3,52 @@
 void 
 TRBFN::configure_mu_beta(std::vector<std::array<double, 3>> & learnSet)
 {
-	std::vector<std::array<double, 2>> convertedData;
-
-	for each (auto learnVect in learnSet)
-		convertedData.push_back({ learnVect[0], learnVect[1] });
-
-	auto resultOfClustering = dkm::kmeans_lloyd(convertedData, neurons_count);
-
-	//Filling mu
 	mu.clear();
-	for each (auto mean in std::get<0>(resultOfClustering))
+	beta.clear();
+	for (int category = 0; category < categories_count; category++)
 	{
-		mu.push_back(mean);
-	}
+		std::vector<std::array<double, 2>> convertedData;
 
-	//Counting betas
-	int m;
-	double sum;
-	for (int betaNum = 0; betaNum < neurons_count; betaNum++)
-	{
-		m = 0;
-		sum = 0;
-		for (int dataNum = 0; dataNum < (int)convertedData.size(); dataNum++)
+		for each (auto learnVect in learnSet)
+			if((int)learnVect[2] == category)
+				convertedData.push_back({ learnVect[0], learnVect[1] });
+
+		auto resultOfClustering = dkm::kmeans_lloyd(convertedData, neurons_count / categories_count);
+
+		//Filling mu
+	
+		for each (auto mean in std::get<0>(resultOfClustering))
 		{
-			if (std::get<1>(resultOfClustering)[dataNum] == betaNum)
-			{
-				m++;
-				sum += euclidean_distance({ learnSet[dataNum][0] - mu[betaNum][0], learnSet[dataNum][1] - mu[betaNum][1] });
-			}
+			mu.push_back(mean);
 		}
-		beta[betaNum] = 1 / (2 * pow((double)(sum / m), 2.));
+		//Counting betas
+		
+		int m;
+		double sum;
+		for (int betaNum = (category * (neurons_count / categories_count)); betaNum < ((category+1) * (neurons_count / categories_count)); betaNum++)
+		{
+			m = 0;
+			sum = 0;
+			//std::cout << "convertedData.size(): "<<(int)convertedData.size() << std::endl;
+			for (int dataNum = 0; dataNum < (int)convertedData.size(); dataNum++)
+			{
+				if (std::get<1>(resultOfClustering)[dataNum] == (betaNum - (category * (neurons_count / categories_count))))
+				{
+					m++;
+					sum += euclidean_distance({ convertedData[dataNum][0] - mu[betaNum][0], convertedData[dataNum][1] - mu[betaNum][1] });
+				}
+			}
+			//PRINT(beta[betaNum]);
+			beta.push_back( 1 / (2 * pow((double)(sum / m), 2.)));
+			//PRINT(beta[betaNum]);
+		}
+		
+
 	}
 }
 
 void 
-TRBFN::configure_W(std::vector<std::array<double, 3>>& learnSet)
+TRBFN::configure_W(std::vector<std::array<double, 3>>& learnSet, int outNum)
 {
 	std::pair<std::vector<std::array<double, 2>>, std::vector<std::vector<double>>> transformedLearnSet = getLearnSet(learnSet);
 	std::vector<std::array<double, 2>> learnVectors = transformedLearnSet.first;
@@ -47,26 +58,27 @@ TRBFN::configure_W(std::vector<std::array<double, 3>>& learnSet)
 	std::vector<double> actFuncRes;
 	std::vector<double> networkRes;
 	//out_error(learnVectors, learnOutputs);
-	while (network_error(transformedLearnSet.first, transformedLearnSet.second) > DOWN_ERROR_VALUE)
+	int count = 0;
+	while ((network_error(learnVectors, learnOutputs, outNum) != 0) && (count++ < MAX_ITERATIONS ))
 	{
 		//out_w_matrix();
-		out_error(learnVectors, learnOutputs);
+		out_error(learnVectors, learnOutputs, outNum);
 		for (int neuronNum = 0; neuronNum < neurons_count; neuronNum++)
 		{
-			for (int outNum = 0; outNum < categories_count; outNum++)
+			sum = 0;
+			for (int learnNum = 0; learnNum < (int)learnVectors.size(); learnNum++)
 			{
-				sum = 0;
-				for (int learnNum = 0; learnNum < (int)learnVectors.size(); learnNum++)
-				{
-					actFuncRes = activation_function(learnVectors[learnNum]);
-					networkRes = normalized_output(learnVectors[learnNum]);
+				actFuncRes = activation_function(learnVectors[learnNum]);
 
-					sum += actFuncRes[neuronNum] * (learnOutputs[learnNum][outNum] - networkRes[outNum]);
-					//std::cout << "sum += " << actFuncRes[neuronNum] << " * (" << learnOutputs[learnNum][outNum] << " - " << networkRes[outNum] << ")" << std::endl;
-				}
-				W[neuronNum][outNum] += sum * LEARNING_COEF;
-				bias[outNum] += sum * LEARNING_COEF;
+				networkRes = normalized_output(learnVectors[learnNum]);
+
+				sum += actFuncRes[neuronNum] * (learnOutputs[learnNum][outNum] - networkRes[outNum]);
+				//std::cout << "sum += " << actFuncRes[neuronNum] << " * (" << learnOutputs[learnNum][outNum] << " - " << networkRes[outNum] << ")" << std::endl;
 			}
+			W[neuronNum][outNum] += sum * LEARNING_COEF;
+			//if(outNum == 1) PRINT((sum * LEARNING_COEF));
+			bias[outNum] += sum * LEARNING_COEF;
+			
 		}
 	}
 }
@@ -95,9 +107,14 @@ std::vector<std::array<double, 2>> TRBFN::getMu()
 
 std::vector<std::vector<double>> TRBFN::getW()
 {
-	std::vector<std::vector<double>> result;
+	std::vector<std::vector<double>> result = W;
 	result.push_back(bias);
 	return result;
+}
+
+std::vector<double> TRBFN::getBeta()
+{
+	return beta;
 }
 
 std::pair<std::vector<std::array<double, 2>>, std::vector<std::vector<double>>> 
@@ -159,10 +176,14 @@ TRBFN::TRBFN(std::vector<std::vector<double>> W, std::vector<double> bias)
 }
 
 void TRBFN::
-learn(std::vector<std::array<double, 3>>& learnSet)
+learn(std::vector<std::array<double, 3>> &learnSet)
 {	
 	configure_mu_beta(learnSet);
-	configure_W(learnSet);
+	for (int i = 0; i < categories_count; i++)
+	{
+		configure_W(learnSet, i);
+	}
+
 }
 
 std::vector<int> 
@@ -205,7 +226,7 @@ TRBFN::output(std::array<double, 2>& testVect)
 		sum = 0;
 		for (int neuronNum = 0; neuronNum < neurons_count; neuronNum++)
 		{
-			sum += W[neuronNum][outNum] * act_func[neuronNum];
+			sum += W[neuronNum][outNum] *act_func[neuronNum];
 		}
 
 		sum += bias[outNum]; //bias(зміщення)
@@ -285,18 +306,18 @@ TRBFN::vects_mult(std::array<double, 2>& a, std::array<double, 2>& b)
 }
 
 double 
-TRBFN::network_error(std::vector<std::array<double, 2>> & testSet, std::vector<std::vector<double>>& tempSet)
+TRBFN::network_error(std::vector<std::array<double, 2>> & testSet, std::vector<std::vector<double>>& tempSet, int category)
 {
 	double result = 0;
 	std::vector<std::vector<double>> network_output = normalized_output(testSet);
+
 	for (int nTest = 0; nTest < (int)testSet.size(); nTest++)
 	{
-		for (int nOut = 0; nOut < categories_count; nOut++)
-		{
-			result += pow((int)tempSet[nTest][nOut] - (int)network_output[nTest][nOut], 2.);
-		}
+		if(tempSet[nTest][category])
+		result += pow((int)tempSet[nTest][category] - (int)network_output[nTest][category], 2.);
+		
 	}
-	return 0.5*result;
+	return result;
 }
 
 void 
@@ -319,10 +340,10 @@ TRBFN::out_w_matrix()
 
 }
 
-void TRBFN::out_error(std::vector<std::array<double, 2>> & testSet, std::vector<std::vector<double>>& tempSet)
+void TRBFN::out_error(std::vector<std::array<double, 2>> & testSet, std::vector<std::vector<double>>& tempSet, int category)
 {
 #ifdef OUT_ERROR
-	std::cout << network_error(testSet, tempSet) << std::endl;
+	std::cout << category<<":"<<network_error(testSet, tempSet, category) << std::endl;
 
 #endif
 }

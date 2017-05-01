@@ -21,7 +21,7 @@ int main(int argc, char ** argv)
 		std::getline(fin, y, ',');
 		std::getline(fin, category);
 
-		learnSet.push_back({ std::stod(x),std::stod(y), (std::stod(category) - 1) });
+		learnSet.push_back({ std::stod(x),std::stod(y), (double)(std::stoi(category) - 1) });
 	}
 
 	TRBFN network(20, 2);
@@ -45,6 +45,14 @@ int main(int argc, char ** argv)
 		outW << std::endl;
 	}
 
+	std::ofstream outBeta("betas.txt");
+	auto betas = network.getBeta();
+	for (int i = 0; i < betas.size(); i++)
+	{
+		outBeta << betas[i];
+		if (i != betas.size() - 1) outBeta << std::endl;
+
+	}
 
 	return 0;
 }
